@@ -13,9 +13,11 @@ import com.leo.support.log.LogUtil;
 import com.leo.support.service.IServiceManager;
 import com.leo.support.service.ServiceProvider;
 import com.leo.support.utils.ArrayUtil;
+import com.leo.support.utils.BroadcastUtils;
 import com.leo.support.utils.ProcessUtils;
 
 /**
+ * done
  * Created by LiuYu on 2017/4/26.
  */
 public class BaseApp extends Application {
@@ -60,10 +62,11 @@ public class BaseApp extends Application {
     public void initApp() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-//        regist
+        BroadcastUtils.registerGlobalReceiver(mBroadcastReceiver, intentFilter);
     }
 
     public void exitApp() {
+        BroadcastUtils.unRegisterGlobalReceiver(mBroadcastReceiver);
     }
 
     public boolean isProcessValid() {
