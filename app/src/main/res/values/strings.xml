@@ -2,5 +2,6 @@
     <string name="app_name">BaseSupport</string>
 
     <string name="hello_world">Hello world!</string>
+    <string name="kotlin_hello">Kotlin Hello!</string>
     <string name="action_settings">Settings</string>
 </resources>
