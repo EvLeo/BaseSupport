@@ -1,15 +1,20 @@
 package com.leo.support.utils;
 
+import android.text.TextUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 
 /**
+ * done
  * Created by leo on 2017/6/1.
  */
 
@@ -67,6 +72,71 @@ public class BaseFileUtils {
                 os.close();
             }
         }
+    }
+
+    public static String readFile2String(File file, String charset) {
+        if (null == file)
+            return "";
+        FileInputStream is = null;
+        ByteArrayOutputStream os =  null;
+        try {
+            is = new FileInputStream(file);
+            os = new ByteArrayOutputStream();
+            copyStream(is, os);
+            return new String(os.toByteArray(), charset);
+        } catch (FileNotFoundException e){
+            e.printStackTrace();
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (null != is) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (null != os) {
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
+    }
+
+    public static boolean write2File(File file, String value, boolean isAppend) {
+        boolean isSuccess = false;
+        if (null == file || TextUtils.isEmpty(value)) {
+            return false;
+        }
+        FileWriter fw = null;
+        try {
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+            fw = new FileWriter(file, isAppend);
+            fw.write(value, 0, value.length());
+            fw.flush();
+            isSuccess = true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            isSuccess = false;
+        } finally {
+            if (null != fw) {
+                try {
+                    fw.close();
+                } catch (IOException e) {
+                    isSuccess = false;
+                    e.printStackTrace();
+                }
+            }
+        }
+        return isSuccess;
     }
 
     public static byte[] getBytes(InputStream is) throws IOException {
