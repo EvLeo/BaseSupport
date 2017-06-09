@@ -26,5 +26,4 @@ public interface NetworkSensor {
 
     public ConnectivityManager getConnectivityManager(Context context);
 
-
 }
