@@ -1,5 +1,8 @@
 package com.leo.support.config;
 
+import com.leo.support.network.HttpExecutor;
+import com.leo.support.network.executor.DefaultHttpExecutor;
+
 import java.io.File;
 
 /**
@@ -28,6 +31,19 @@ public class BaseConfig {
 
     public File getAppRootDir() {
         return mImageCacheDir;
+    }
+
+    private HttpExecutor mHttpExecutor = new DefaultHttpExecutor();
+    public HttpExecutor getHttpExecutor() {
+        if (null == mHttpExecutor) {
+            mHttpExecutor = new DefaultHttpExecutor();
+        }
+        return mHttpExecutor;
+    }
+
+    public BaseConfig setHttpExecutor(HttpExecutor executor) {
+        this.mHttpExecutor = executor;
+        return this;
     }
 
 }
