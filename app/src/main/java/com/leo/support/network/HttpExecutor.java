@@ -18,7 +18,7 @@ public interface HttpExecutor {
 
         public int mTimeout = 0;
 
-        public int BufferSize = 1024;
+        public int mBufferSize = 1024;
 
         public HashMap<String, String> mHeader;
 
