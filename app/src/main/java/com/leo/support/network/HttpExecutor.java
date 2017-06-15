@@ -2,6 +2,7 @@ package com.leo.support.network;
 
 import com.leo.support.bean.KeyValuePair;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,7 +45,7 @@ public interface HttpExecutor {
     }
 
     public static interface OutputStreamHandler {
-        public void writeTo(OutputStream os) throws Throwable;
+        public void writeTo(OutputStream os) throws IOException;
         public long getLength();
     }
 

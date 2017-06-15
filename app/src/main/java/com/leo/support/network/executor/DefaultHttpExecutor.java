@@ -2,7 +2,6 @@ package com.leo.support.network.executor;
 
 import android.text.TextUtils;
 
-import com.leo.support.audio.StatusCode;
 import com.leo.support.bean.KeyValuePair;
 import com.leo.support.network.HttpError;
 import com.leo.support.network.HttpExecutor;
@@ -20,15 +19,24 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.params.ConnRouteParams;
-import org.apache.http.util.EntityUtils;
+import org.apache.http.entity.*;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
@@ -120,7 +128,39 @@ public class DefaultHttpExecutor implements HttpExecutor {
                 }
                 request = new HttpGet(url);
             } else {
-                request = new HttpGet(url);
+                request = new HttpPost(url);
+                HttpEntity entity = null;
+                if (null != params && null != params.mOsHandler) {
+                    entity = new CustomHttpEntity(params.mOsHandler);
+                } else {
+                    entity = new MultipartEntity();
+                    if (null != params && null != params.mByteFileMap) {
+                        if (null != params && null != params.mParams) {
+                            for (KeyValuePair param : params.mParams) {
+                                ((MultipartEntity)entity).addPart(param.getKey(),
+                                        new StringBody(param.getValue(), Charset.forName(HTTP.UTF_8)));
+                            }
+                        }
+
+                        for (Map.Entry<String, ByteFile> entry : params.mByteFileMap.entrySet()) {
+                            ByteFile file = entry.getValue();
+                            if (!TextUtils.isEmpty(file.mMimeType) && !TextUtils.isEmpty(file.mFileName)) {
+                                ((MultipartEntity) entity).addPart(entry.getKey(),
+                                        new ByteArrayBody(file.mBytes, file.mMimeType, file.mFileName));
+                            }
+                        }
+                    } else {
+                        if (null != params && null != params.mParams) {
+                            List<BasicNameValuePair> valuePairs = new ArrayList<BasicNameValuePair>();
+                            for (KeyValuePair pair : params.mParams) {
+                                valuePairs.add(new BasicNameValuePair(pair.getKey(), pair.getValue()));
+                            }
+                            entity = new UrlEncodedFormEntity(valuePairs, HTTP.UTF_8);
+                        }
+                    }
+                }
+
+                ((HttpPost)request).setEntity(entity);
 
             }
 
@@ -299,5 +339,50 @@ public class DefaultHttpExecutor implements HttpExecutor {
         }
 
         return result;
+    }
+
+    private class CustomHttpEntity extends AbstractHttpEntity {
+
+        private OutputStreamHandler mStreamHandler;
+        private boolean consumed = false;
+
+        CustomHttpEntity(OutputStreamHandler handler) {
+            super();
+            this.mStreamHandler = handler;
+        }
+
+        @Override
+        public boolean isRepeatable() {
+            return false;
+        }
+
+        @Override
+        public long getContentLength() {
+            return mStreamHandler.getLength();
+        }
+
+        @Override
+        public InputStream getContent() throws IOException, IllegalStateException {
+            throw new UnsupportedOperationException("Entity template does not implement getContent()");
+        }
+
+        @Override
+        public void writeTo(OutputStream outputStream) throws IOException {
+            if (null == outputStream) {
+                throw new IllegalArgumentException("Output stream may be null");
+            }
+            this.mStreamHandler.writeTo(outputStream);
+            this.consumed = true;
+        }
+
+        @Override
+        public boolean isStreaming() {
+            return !this.consumed;
+        }
+
+        @Override
+        public void consumeContent() throws IOException {
+            this.consumed = true;
+        }
     }
 }
