@@ -27,13 +27,13 @@ public class DataHttpListener implements HttpListener {
     }
 
     @Override
-    public boolean onStart(long startPos, long contentLength) throws Throwable {
+    public boolean onStart(long startPos, long contentLength) {
         mByteArrayOutputStream = new ByteArrayOutputStream();
         return true;
     }
 
     @Override
-    public boolean onAdvance(byte[] buffer, int offset, int len) throws Throwable {
+    public boolean onAdvance(byte[] buffer, int offset, int len) {
         if (null != mByteArrayOutputStream) {
             mByteArrayOutputStream.write(buffer, offset, len);
         }
@@ -41,7 +41,7 @@ public class DataHttpListener implements HttpListener {
     }
 
     @Override
-    public boolean onComplete() throws Throwable {
+    public boolean onComplete() {
         if (null != mByteArrayOutputStream) {
             mByteData = mByteArrayOutputStream.toByteArray();
         }
@@ -49,7 +49,7 @@ public class DataHttpListener implements HttpListener {
     }
 
     @Override
-    public void onError(int statusCode) throws Throwable {
+    public void onError(int statusCode) {
         if (null != mByteArrayOutputStream) {
             try {
                 mByteArrayOutputStream.close();
@@ -61,7 +61,7 @@ public class DataHttpListener implements HttpListener {
     }
 
     @Override
-    public boolean onRelease() throws Throwable {
+    public boolean onRelease() {
         return true;
     }
 
