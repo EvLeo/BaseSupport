@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import com.leo.support.app.BaseApp;
 import com.leo.support.log.LogUtil;
 
 import java.util.ArrayList;
@@ -307,7 +308,7 @@ public abstract class BaseTable<T> implements BaseColumns {
     }
 
     public void notifyChange(Uri uri) {
-//        BaseApp.getAppContext().getContentResolver().notifyChange(uri, null);
+        BaseApp.getAppContext().getContentResolver().notifyChange(uri, null);
     }
 
     public void notifyDataChange() {
